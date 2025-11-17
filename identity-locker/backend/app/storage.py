@@ -29,7 +29,7 @@ def load_credential(cid):
 def revoke_credential(cid, reason="dev-revoked"):
     with open(REVOKE_FILE, "r") as f:
         r = json.load(f)
-    entry = {"cid": cid, "reason": reason}
+    entry = {"cid": cid, "reason": reason, "revoked_at": __import__("datetime").datetime.utcnow().isoformat() + "Z"}
     r.append(entry)
     with open(REVOKE_FILE, "w") as f:
         json.dump(r, f)
