@@ -1,0 +1,12 @@
+{
+  "test_holder": {
+    "did": "did:polkadot:holder_test",
+    "public_key": "pubkey_holder",
+    "private_key": "priv_holder"
+  },
+  "test_issuer": {
+    "did": "did:polkadot:issuer_test",
+    "public_key": "pubkey_issuer",
+    "private_key": "priv_issuer"
+  }
+}

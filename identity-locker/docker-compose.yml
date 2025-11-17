@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  backend:
+    build: ./backend
+    container_name: idlocker-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=dev
+      - ANCHOR_MODE=${ANCHOR_MODE:-stub}
+    volumes:
+      - ./backend/data:/app/../data
+    networks:
+      - idnet
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: idlocker-frontend
+    command: ["sh", "-c", "npm install && npm start"]
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://backend:8000
+    networks:
+      - idnet
+
+networks:
+  idnet:
+    driver: bridge

@@ -1,0 +1,4 @@
+body { background:#f7f9fc; color:#111; }
+button { padding:8px 12px; border-radius:6px; cursor:pointer; }
+.log { border:1px solid #eee; padding:10px; max-height:300px; overflow:auto; background:white; }
+.log-item { padding:6px 0; border-bottom:1px dashed #f0f0f0; font-family:monospace; font-size:13px; }
