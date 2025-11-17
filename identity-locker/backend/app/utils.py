@@ -27,7 +27,8 @@ def create_did():
     priv, pub = generate_keypair()
     did = "did:polkadot:" + secrets.token_hex(8)
     entry = {"did": did, "private_key": priv, "public_key": pub}
-    with open(os.path.join(DATA_DIR, f"{did}.json"), "w") as f:
+    data_path = os.path.join(DATA_DIR, f"{did}.json")
+    with open(data_path, "w") as f:
         json.dump(entry, f)
     return entry
 
