@@ -12,36 +12,57 @@ export default function App(){
   }
 
   async function onCreateDID(){
-    const res = await createDID();
-    append(`Created DID: ${res.did}`);
-    setHolder(res.did);
+    try {
+      const res = await createDID();
+      append(`Created DID: ${res.did}`);
+      setHolder(res.did);
+    } catch (e) {
+      append(`Error create DID: ${e.message}`);
+    }
   }
 
   async function onCreateIssuer(){
-    const res = await createDID();
-    append(`Created Issuer DID: ${res.did}`);
-    setIssuer(res.did);
+    try {
+      const res = await createDID();
+      append(`Created Issuer DID: ${res.did}`);
+      setIssuer(res.did);
+    } catch (e) {
+      append(`Error create Issuer: ${e.message}`);
+    }
   }
 
   async function onIssue(){
     if(!holder || !issuer){ append("Need holder and issuer"); return; }
-    const subject = { email: "alice@example.com", age: 30 };
-    const res = await issueVC(holder, issuer, subject);
-    append(`Issued VC id: ${res.vc.id}`);
-    setLastVC(res);
+    try {
+      const subject = { email: "alice@example.com", age: 30 };
+      const res = await issueVC(holder, issuer, subject);
+      append(`Issued VC id: ${res.vc.id}`);
+      append(`Anchor: ${JSON.stringify(res.anchor)}`);
+      setLastVC(res);
+    } catch (e) {
+      append(`Issue error: ${e.message}`);
+    }
   }
 
   async function onVerify(){
     if(!lastVC){ append("No VC to present"); return; }
-    const presentation = { vc_id: lastVC.vc.id, nonce: "nonce-12345" };
-    const res = await verifyPresentation(presentation);
-    append(`Verify result: ${JSON.stringify(res)}`);
+    try {
+      const presentation = { vc_id: lastVC.vc.id, nonce: "nonce-12345" };
+      const res = await verifyPresentation(presentation);
+      append(`Verify result: ${JSON.stringify(res)}`);
+    } catch (e) {
+      append(`Verify error: ${e.message}`);
+    }
   }
 
   async function onRevoke(){
     if(!lastVC){ append("No VC to revoke"); return; }
-    const res = await revoke(lastVC.cid);
-    append(`Revoked: ${JSON.stringify(res)}`);
+    try {
+      const res = await revoke(lastVC.cid);
+      append(`Revoked: ${JSON.stringify(res)}`);
+    } catch (e) {
+      append(`Revoke error: ${e.message}`);
+    }
   }
 
   return (
