@@ -1,0 +1,1 @@
+{"context": ["https://www.w3.org/2018/credentials/v1"], "id": null, "type": ["VerifiableCredential", "IdentityCredential"], "issuer": "did:polkadot:a213b7b74eddcf2d", "issuanceDate": "2025-11-17T22:52:35.398991Z", "expirationDate": "2026-11-17T22:52:35.399006Z", "credentialSubject": {"email": "sureshora@yahoo.com", "age": 25}}
