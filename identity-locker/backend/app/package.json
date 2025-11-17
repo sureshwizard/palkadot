@@ -1,0 +1,9 @@
+{
+  "name": "idlocker-backend-js",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@polkadot/api": "^9.16.1",
+    "@polkadot/keyring": "^10.3.1"
+  }
+}
