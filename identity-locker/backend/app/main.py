@@ -1,8 +1,8 @@
-# main.py - FastAPI app with endpoints for DID, issue, verify, revoke
+# main.py - FastAPI app (anchor support: stub or real via polkadot_real.js)
 from fastapi import FastAPI, HTTPException
 from .utils import create_did, hash_object
 from .storage import save_credential, load_credential, revoke_credential, is_revoked
-from .polkadot_stub import anchor_hash
+from .polkadot_stub import anchor_hash as stub_anchor
 from .models import CreateDIDResponse, IssueRequest, IssueResponse, VerifyRequest, RevokeRequest
 from datetime import datetime, timedelta
 import json, os, subprocess
@@ -28,28 +28,32 @@ def issue_vc(req: IssueRequest):
         "expirationDate": expires,
         "credentialSubject": req.credential_subject,
     }
-    # compute VC id / cid
     cid = save_credential(vc)
     vc["id"] = f"urn:vc:{cid}"
-    # anchor (stub or real via node script)
+
+    # Anchor (stub or real via node script)
     if ANCHOR_MODE == "real":
         try:
-            # call node script - expects polkadot_real.js in same folder and environment variables
-            ws = os.getenv("POLKADOT_WS", "wss://rpc.polkadot.io")
-            suri = os.getenv("POLKADOT_SURI", "//Alice")
             script = os.path.join(os.path.dirname(__file__), "polkadot_real.js")
-            out = subprocess.check_output(["node", script, cid, ws, suri], stderr=subprocess.STDOUT, timeout=30)
-            anchor = json.loads(out.decode().strip().splitlines()[-1])
+            env = os.environ.copy()
+            env["HASH"] = cid
+            env["POLKADOT_WS"] = env.get("POLKADOT_WS", "ws://127.0.0.1:9944")
+            env["POLKADOT_SURI"] = env.get("POLKADOT_SURI", "//Alice")
+            out = subprocess.check_output(["node", script], env=env, stderr=subprocess.STDOUT, timeout=60)
+            lines = out.decode().strip().splitlines()
+            anchor = json.loads(lines[-1])
+        except subprocess.CalledProcessError as e:
+            anchor = {"error": f"node script failed: {e.output.decode().strip()}"}
         except Exception as e:
             anchor = {"error": str(e)}
     else:
-        anchor = anchor_hash(cid)
+        anchor = stub_anchor(cid)
+
     return {"vc": vc, "cid": cid, "anchor": anchor}
 
 @app.post("/verify")
 def verify_presentation(req: VerifyRequest):
     pres = req.presentation
-    # For demo: check that vc.id exists, not revoked, and nonce present
     vc_id = pres.get("vc_id")
     nonce = pres.get("nonce")
     if not vc_id or not nonce:
@@ -61,7 +65,6 @@ def verify_presentation(req: VerifyRequest):
     revoked = is_revoked(cid)
     if revoked:
         return {"verified": False, "reason": "revoked"}
-    # In real implementation: verify signature, issuer DID, proof, nonce, etc.
     return {"verified": True, "vc": vc}
 
 @app.post("/revoke")
